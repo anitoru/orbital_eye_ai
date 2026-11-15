@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ORBITAL EYE AI{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="{{ url_for('index') }}">
+        <span class="brand-mark">◉</span>
+        <span>ORBITAL<span class="brand-light"> EYE</span><small>SPACE HEALTH SYSTEMS</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <nav>
+        <a class="{% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}"><span>▦</span> Mission overview</a>
+        <a class="{% if request.endpoint == 'analysis' %}active{% endif %}" href="{{ url_for('analysis') }}"><span>◉</span> OCT analysis</a>
+        <a class="{% if request.endpoint == 'history' %}active{% endif %}" href="{{ url_for('history') }}"><span>◷</span> Scan history</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="status-dot"></div>
+        <div><b>LOCAL PROTOTYPE</b><small>Model not connected</small></div>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div class="breadcrumb">MISSION SYSTEMS <span>/</span> OPHTHALMIC MONITORING</div>
+        <div class="top-right"><span class="live-dot"></span> DEMO ENVIRONMENT <span class="avatar">OE</span></div>
+      </header>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+      <footer>ORBITAL EYE AI <span>RESEARCH PROTOTYPE · NOT FOR CLINICAL USE</span></footer>
+    </main>
+  </div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

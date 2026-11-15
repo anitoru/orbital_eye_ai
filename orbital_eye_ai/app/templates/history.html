@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Scan History | ORBITAL EYE AI{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow">RECORDS / LOCAL DATABASE</div><h1>Scan history</h1><p>OCT images uploaded to this local prototype.</p></div><a class="button primary" href="{{ url_for('analysis') }}">＋ New scan</a></section>
+{% if scans %}
+<div class="table-wrap"><table><thead><tr><th>FILE</th><th>DATE (UTC)</th><th>DIMENSIONS</th><th>MEAN INTENSITY</th><th>STATUS</th></tr></thead><tbody>
+{% for scan in scans %}<tr><td class="file-cell"><a href="{{ url_for('uploaded_file', filename=scan.stored_name) }}" target="_blank">▧ {{ scan.filename }}</a></td><td>{{ scan.created_at }}</td><td>{{ scan.width }} × {{ scan.height }}</td><td>{{ scan.mean_intensity }}</td><td><span class="pill pending">Model pending</span></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}
+<div class="empty-state"><div class="empty-icon">◷</div><h4>No scan records</h4><p>Uploaded OCT examinations will appear here.</p><a class="text-link" href="{{ url_for('analysis') }}">Upload an OCT scan →</a></div>
+{% endif %}
+{% endblock %}

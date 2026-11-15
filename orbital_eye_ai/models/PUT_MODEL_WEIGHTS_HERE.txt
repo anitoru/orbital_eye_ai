@@ -1,0 +1,4 @@
+PLACE TRAINED MODEL WEIGHTS HERE.
+
+Expected future example: retinal_unet.pt
+No trained model is included in this starter project.

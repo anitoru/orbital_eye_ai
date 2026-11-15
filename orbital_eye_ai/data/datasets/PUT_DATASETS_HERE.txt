@@ -1,0 +1,5 @@
+PLACE YOUR PUBLIC OCT DATASETS HERE.
+
+Keep the original source citation, license, dataset version and subject/patient identifiers.
+Do not mix datasets until image dimensions, modality, labels and subject-level metadata are checked.
+For model development, split by subject/patient to avoid train/test leakage.
