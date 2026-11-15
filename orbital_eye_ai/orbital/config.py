@@ -40,6 +40,14 @@ class Config:
 
     # Path to a trained U-Net checkpoint (.pt). Missing file -> model reported as unavailable.
     MODEL_PATH = Path(os.environ.get("MODEL_PATH", BASE_DIR / "models" / "retinal_unet.pt"))
+    # Optional private download link for the checkpoint (e.g. a Google Drive share link), used by the
+    # hosted demo so the weights never have to be committed to the public repository. Keep it secret.
+    MODEL_URL = os.environ.get("MODEL_URL", "")
+
+    # Public demo mode: visitors can browse and try uploads, but nothing they do is saved or shared,
+    # and deleting / creating profiles is disabled. Demo data is seeded at start-up.
+    PUBLIC_DEMO = _bool("PUBLIC_DEMO", False)
+    DEMO_UPLOAD_TTL_MIN = int(os.environ.get("DEMO_UPLOAD_TTL_MIN", "30"))
 
     # DEMONSTRATION threshold: % change in mean total retinal thickness (pixels) vs. baseline.
     # Illustrative only - not clinically validated.

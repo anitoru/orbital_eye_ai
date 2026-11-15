@@ -106,9 +106,24 @@ study, OSDR OSD-816, LSDA access path), maps it to the prototype's design, and l
 Data categories are kept separate: experimental research (OSDR), clinical OCT datasets (Duke), synthetic demo data
 (generated in `orbital/demo.py`), and real astronaut observations (published literature only — none in this app).
 
-## Deployment for the final demo
+## Public demo (Hugging Face Spaces)
 
-Codespaces is for development, not permanent hosting. Recommended: **Render** (web service, start command
-`gunicorn "app:create_app()"`, root directory `orbital_eye_ai`, add a persistent disk for `uploads/` and the DB) or
-**Hugging Face Spaces** (Docker) if the U-Net is connected. Set `SECRET_KEY` and keep `FLASK_DEBUG=0`.
-Uploaded images are served without login — use only public, de-identified or synthetic images.
+Codespaces is for development, not hosting. The public demo runs on **Hugging Face Spaces** (Docker, free CPU)
+in **public demo mode** (`PUBLIC_DEMO=1`):
+
+- demo astronauts are seeded at start-up;
+- visitors can browse everything and try an upload — the result is shown only to them, nothing is saved,
+  the original file is deleted immediately and derived images after `DEMO_UPLOAD_TTL_MIN` (30 min);
+- deleting examinations and creating profiles are disabled;
+- the trained weights are downloaded at start-up from a private link stored as the Space secret `MODEL_URL`
+  (e.g. a Google Drive link shared as "Anyone with the link"), so they never enter the public repository.
+
+Publish or update the Space (run in `orbital_eye_ai/`):
+
+```bash
+pip install huggingface_hub
+python deploy/push_to_hf.py --space YOUR_HF_USERNAME/orbital-eye-ai
+```
+
+The script asks for a Hugging Face write token and the model link (both hidden), stores them as Space secrets and
+uploads the code. Every push to GitHub also builds and smoke-tests the same Docker image in GitHub Actions.

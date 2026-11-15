@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Astronauts | ORBITAL EYE AI{% endblock %}
 {% block content %}
-<section class="page-heading"><div><div class="eyebrow">CREW / PROFILES</div><h1>Astronaut profiles</h1><p>Anonymised or fictional profiles only. Do not enter real personal medical information.</p></div><a class="button primary" href="{{ url_for('astronaut_new') }}">＋ New profile</a></section>
+<section class="page-heading"><div><div class="eyebrow">CREW / PROFILES</div><h1>Astronaut profiles</h1><p>Anonymised or fictional profiles only. Do not enter real personal medical information.</p></div>{% if not public_demo %}<a class="button primary" href="{{ url_for('astronaut_new') }}">＋ New profile</a>{% endif %}</section>
 {% if crew %}
 <div class="table-wrap"><table><thead><tr><th>ID</th><th>DISPLAY NAME</th><th>MISSION</th><th>MISSION STATUS</th><th>EXAMS</th><th>LAST EXAM</th><th>ALERTS</th></tr></thead><tbody>
 {% for a in crew %}<tr>

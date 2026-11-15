@@ -29,7 +29,11 @@
       <div id="file-name" class="file-name">No file selected</div>
       <button class="button primary full" type="submit">Upload and analyse <span>→</span></button>
     </form>
+    {% if public_demo %}
+    <div class="privacy-note"><b>Public demo:</b> your image is analysed for you only, is not saved and is deleted automatically. Upload only public, de-identified or synthetic images — never personal medical data.</div>
+    {% else %}
     <div class="privacy-note">Files are stored in the server's private <code>uploads/</code> folder (not committed to Git). Use only public, de-identified research images or synthetic data.</div>
+    {% endif %}
   </section>
   <section class="panel result-panel">
     <div class="panel-title"><div><div class="eyebrow">PIPELINE</div><h3>What happens to the image</h3></div><span class="step">02 / 02</span></div>

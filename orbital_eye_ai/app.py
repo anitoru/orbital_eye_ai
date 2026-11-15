@@ -32,7 +32,7 @@ from werkzeug.utils import secure_filename
 
 from orbital import db, demo, imaging, monitoring, pipeline
 from orbital.config import BASE_DIR, Config
-from orbital.ml import inference
+from orbital.ml import download, inference
 
 PHASES = ["baseline", "in-flight", "post-flight"]
 EYES = ["OD", "OS"]
@@ -59,6 +59,15 @@ def create_app(overrides: Optional[Dict[str, Any]] = None) -> Flask:
     cfg.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     (cfg.UPLOAD_DIR / cfg.DERIVED_DIR_NAME).mkdir(parents=True, exist_ok=True)
     db.init_db(cfg.DB_PATH)  # runs for python app.py, flask run and gunicorn alike
+    if cfg.MODEL_URL:
+        download.ensure_model(cfg.MODEL_PATH, cfg.MODEL_URL)
+    if cfg.PUBLIC_DEMO and not cfg.TESTING:
+        conn = db.connect(cfg.DB_PATH)
+        try:
+            if db.query_one(conn, "SELECT COUNT(*) n FROM astronauts")["n"] == 0:
+                log.info("Public demo: seeding demo astronauts %s", demo.seed(conn, cfg))
+        finally:
+            conn.close()
 
     register_routes(app)
     register_cli(app)
@@ -105,7 +114,23 @@ def register_filters(app: Flask) -> None:
     def inject_globals():
         status = inference.model_status(get_cfg().MODEL_PATH)
         return {"model_label": status["label"], "model_state": status["state"],
-                "alert_threshold": get_cfg().ALERT_THRESHOLD_PCT}
+                "alert_threshold": get_cfg().ALERT_THRESHOLD_PCT, "public_demo": get_cfg().PUBLIC_DEMO}
+
+
+def cleanup_demo_files(cfg) -> None:
+    """Delete visitors' temporary analysis images older than DEMO_UPLOAD_TTL_MIN (public demo)."""
+    cutoff = datetime.now(timezone.utc).timestamp() - cfg.DEMO_UPLOAD_TTL_MIN * 60
+    for path in (cfg.UPLOAD_DIR / cfg.DERIVED_DIR_NAME).glob("tmp-*"):
+        try:
+            if path.stat().st_mtime < cutoff:
+                path.unlink()
+        except OSError:
+            pass
+
+
+def demo_disabled_redirect(endpoint: str = "index", **kwargs):
+    flash("This action is disabled in the public demo. Run the app yourself to use it (see the README).", "error")
+    return redirect(url_for(endpoint, **kwargs))
 
 
 def register_routes(app: Flask) -> None:
@@ -172,7 +197,7 @@ def register_routes(app: Flask) -> None:
             return redirect(url_for("analysis"))
 
         original = secure_filename(file.filename) or "upload"
-        scan_id = uuid.uuid4().hex[:12]
+        scan_id = ("tmp-" if cfg.PUBLIC_DEMO else "") + uuid.uuid4().hex[:12]
         stored_name = f"{scan_id}_{original}"
         destination = cfg.UPLOAD_DIR / stored_name
         file.save(destination)
@@ -193,6 +218,24 @@ def register_routes(app: Flask) -> None:
             "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "astronaut_id": astronaut_id, "exam_date": exam_date, "exam_phase": phase, "eye": eye, "is_demo": 0,
         })
+
+        if cfg.PUBLIC_DEMO:
+            # Show the result to this visitor only: nothing is stored in the database, the original
+            # upload is deleted now and the derived images are removed after DEMO_UPLOAD_TTL_MIN.
+            destination.unlink(missing_ok=True)
+            cleanup_demo_files(cfg)
+            person = db.query_one(conn, "SELECT display_name, mission FROM astronauts WHERE id = ?",
+                                  (astronaut_id,)) if astronaut_id else None
+            scan = {**values, "display_name": person["display_name"] if person else None,
+                    "mission": person["mission"] if person else None}
+            comparison, baseline = None, None
+            if astronaut_id and monitoring.is_usable(scan) and phase != "baseline":
+                baseline = monitoring.baseline_for(conn, astronaut_id, eye, scan["seg_method"])
+                if baseline is not None:
+                    comparison = monitoring.compare(baseline, scan)
+            log.info("Public demo analysis %s (%s)", scan_id, values["status"])
+            return render_template("scan_detail.html", scan=scan, comparison=comparison, baseline=baseline,
+                                   alerts=[], usable=monitoring.is_usable(scan), ephemeral=True)
         db.insert(conn, "scans", values)
         if astronaut_id:
             monitoring.recompute_alerts(conn, astronaut_id, cfg.ALERT_THRESHOLD_PCT)
@@ -221,6 +264,8 @@ def register_routes(app: Flask) -> None:
     @app.route("/scans/<scan_id>/delete", methods=["POST"])
     def scan_delete(scan_id):
         conn, cfg = get_db(), get_cfg()
+        if cfg.PUBLIC_DEMO:
+            return demo_disabled_redirect("scan_detail", scan_id=scan_id)
         scan = db.query_one(conn, "SELECT * FROM scans WHERE id = ?", (scan_id,))
         if scan is None:
             abort(404)
@@ -298,7 +343,9 @@ def register_routes(app: Flask) -> None:
 
     @app.route("/astronauts/new", methods=["GET", "POST"])
     def astronaut_new():
-        form = {"id": "", "display_name": "", "mission": "", "mission_status": "pre-flight", "notes": ""}
+        if get_cfg().PUBLIC_DEMO:
+            return demo_disabled_redirect("astronauts")
+        form ={"id": "", "display_name": "", "mission": "", "mission_status": "pre-flight", "notes": ""}
         if request.method == "POST":
             form = {k: (request.form.get(k) or "").strip() for k in form}
             form["id"] = form["id"].upper()

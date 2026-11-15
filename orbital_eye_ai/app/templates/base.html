@@ -36,6 +36,7 @@
         <div class="breadcrumb">MISSION SYSTEMS <span>/</span> OPHTHALMIC MONITORING</div>
         <div class="top-right"><span class="live-dot"></span> DEMO ENVIRONMENT <span class="avatar">OE</span></div>
       </header>
+      {% if public_demo %}<div class="notice" style="margin:-18px 0 18px"><b>Public demo</b><span>Fictional astronauts with synthetic scans. You can explore everything and try an upload — your image is analysed for you only, is not saved to the database and is deleted automatically. Research prototype; does not diagnose SANS.</span></div>{% endif %}
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}

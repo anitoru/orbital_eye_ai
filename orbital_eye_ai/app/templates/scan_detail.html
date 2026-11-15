@@ -6,9 +6,12 @@
     <p>{% if scan.astronaut_id %}<a class="text-link" href="{{ url_for('astronaut_detail', astronaut_id=scan.astronaut_id) }}">{{ scan.astronaut_id }} — {{ scan.display_name }}</a> · {% else %}Unassigned · {% endif %}
       {{ scan.exam_date or scan.created_at[:10] }} · {{ scan.exam_phase or 'phase not specified' }} · {{ scan.eye or 'eye not specified' }}
       {% if scan.is_demo %}<span class="pill demo">SYNTHETIC DEMO DATA</span>{% endif %}</p></div>
+  {% if not public_demo %}
   <form method="post" action="{{ url_for('scan_delete', scan_id=scan.id) }}" onsubmit="return confirm('Delete this examination and its files?');">
     <button class="button small danger" type="submit">Delete examination</button></form>
+  {% endif %}
 </section>
+{% if ephemeral %}<div class="flash success" style="margin:0 0 18px">Your image was analysed. This result is shown only to you and is not saved — its images are deleted automatically.</div>{% endif %}
 
 <section class="panel auto">
   <div class="panel-title"><div><div class="eyebrow">OCT VIEWER</div><h3>Original, preprocessed and boundary overlay</h3></div><span class="pill info">{{ (scan.seg_method or 'none') | upper }}</span></div>
