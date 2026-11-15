@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}NASA research | ORBITAL EYE AI{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div><div class="eyebrow">SCIENCE / NASA EVIDENCE BASE</div><h1>NASA research behind this tool</h1>
+    <p>Why astronaut eye monitoring matters, what NASA has measured, and how this prototype relates to NASA data.</p></div>
+  <span class="pill info">SOURCES CHECKED 16 NOV 2026</span>
+</section>
+
+<section class="hero" style="min-height:0;padding:28px 36px">
+  <div class="hero-copy">
+    <div class="eyebrow pale">THE PROBLEM · NASA</div>
+    <h2 style="font-size:26px">“Seventy percent of astronauts on the International Space Station experience
+      some amount of <em>swelling in the back of the eye.</em>”</h2>
+    <p style="max-width:640px">NASA, <i>What is Spaceflight Associated Neuro-ocular Syndrome?</i> <a class="text-link" style="color:#8ddbd5" href="https://www.nasa.gov/image-article/what-spaceflight-associated-neuro-ocular-syndrome/" target="_blank" rel="noopener">nasa.gov ↗</a></p>
+  </div>
+</section>
+
+<div class="grid-2 mt">
+  <section class="panel auto">
+    <div class="eyebrow">WHAT IS SANS</div><h3 style="margin:6px 0 10px">Spaceflight Associated Neuro-ocular Syndrome</h3>
+    <p class="muted" style="font-size:12px;line-height:1.7">Prolonged microgravity during long-duration spaceflight produces neuro-ophthalmic findings in astronauts that together define SANS. NASA physicians first described them in ISS astronauts in 2011 (Mader et al.). Clinical manifestations reviewed by Lee et al. (2020):</p>
+    <ul class="notes">
+      <li>Unilateral and bilateral <b>optic disc edema</b></li>
+      <li><b>Globe flattening</b></li>
+      <li><b>Choroidal and retinal folds</b></li>
+      <li><b>Hyperopic</b> refractive error shifts</li>
+      <li>Focal ischemic retina (<b>cotton wool spots</b>)</li>
+    </ul>
+    <p class="muted" style="font-size:11px;line-height:1.6">The cause is not settled. Proposed mechanisms, terrestrial analogs and countermeasures (e.g. lower body negative pressure, nutritional supplementation, translaminar pressure modulation) are reviewed by Ong et al. (2023), with NASA co-authors.</p>
+  </section>
+
+  <section class="panel auto">
+    <div class="eyebrow">NASA OCT EVIDENCE · ISS OCULAR HEALTH STUDY</div><h3 style="margin:6px 0 10px">OCT measures these changes in flight</h3>
+    <dl class="kv">
+      <dt>STUDY</dt><dd>Macias et al., JAMA Ophthalmology 2020 — prospective cohort</dd>
+      <dt>CREW</dt><dd>11 astronauts, before, during and after ~6-month ISS missions (mean 170 days)</dd>
+      <dt>FINDING</dt><dd>Optic nerve head rim tissue and peripapillary choroid thickened from early flight, with the largest change near the end of the mission</dd>
+      <dt>MAGNITUDE</dt><dd>Mean rim tissue thickness change on flight day 150: <b>+35.7 µm</b></dd>
+    </dl>
+    <div class="notice" style="margin-top:14px"><b>Why it matters here</b><span>NASA tracks SANS with repeated OCT compared against each astronaut's own pre-flight baseline — the same longitudinal design this prototype implements.</span></div>
+  </section>
+</div>
+
+<section class="section-head mt"><div><div class="eyebrow">DESIGN MAPPING</div><h3>How the prototype follows NASA's approach</h3></div></section>
+<div class="table-wrap"><table><thead><tr><th>NASA PRACTICE / EVIDENCE</th><th>IN ORBITAL EYE AI</th><th>STATUS</th></tr></thead><tbody>
+<tr><td>Pre-flight baseline exam, in-flight follow-ups, post-flight recovery exams (Macias 2020)</td><td>Exam phases <b>baseline / in-flight / post-flight</b> on every upload</td><td><span class="pill ok">IMPLEMENTED</span></td></tr>
+<tr><td>Change measured relative to each astronaut's own baseline</td><td>% change vs. baseline of the same eye; trend charts per astronaut</td><td><span class="pill ok">IMPLEMENTED</span></td></tr>
+<tr><td>Quantitative OCT thickness (µm) around the optic disc</td><td>Retinal layer segmentation (U-Net) and ILM–outer boundary thickness in <b>pixels</b></td><td><span class="pill acceptable">PARTIAL — MACULAR, PIXELS</span></td></tr>
+<tr><td>Medical review of significant changes by flight surgeons / ophthalmologists</td><td>Review alerts with a configurable demonstration threshold — no diagnosis</td><td><span class="pill ok">IMPLEMENTED</span></td></tr>
+<tr><td>Optic disc edema / peripapillary assessment</td><td>Not possible yet: public annotated datasets are macular scans</td><td><span class="pill poor">GAP</span></td></tr>
+</tbody></table></div>
+
+<div class="grid-2 mt">
+  <section class="panel auto">
+    <div class="eyebrow">NASA OPEN SCIENCE DATA REPOSITORY</div><h3 style="margin:6px 0 10px">OSD-816 — mechanism research</h3>
+    <p style="font-size:12px;line-height:1.6;margin:0 0 10px"><b>“The ex vivo human translaminar autonomous system to study spaceflight associated neuro-ocular syndrome pathogenesis (Retina, RT-PCR and electroretinography)”</b></p>
+    <dl class="kv">
+      <dt>MATERIAL</dt><dd>De-identified human donor eyes (retina), cultured ex vivo</dd>
+      <dt>FACTORS</dt><dd>Pressure ratio ICP:IOP (intracranial : intraocular) and optic nerve tilt</dd>
+      <dt>ASSAYS</dt><dd>Real-time PCR, electroretinography</dd>
+      <dt>TYPE</dt><dd>Ground study</dd>
+    </dl>
+    <p class="muted" style="font-size:11px;line-height:1.6">Relevance: it studies the <b>pressure-difference hypothesis</b> for SANS in human retinal tissue. It is <b>not</b> astronaut clinical data and contains no OCT scans, so it is used here as scientific background, not as model training data.</p>
+    <a class="text-link" href="https://osdr.nasa.gov/bio/repo/data/studies/OSD-816" target="_blank" rel="noopener">Open OSD-816 on NASA OSDR ↗</a>
+  </section>
+
+  <section class="panel auto">
+    <div class="eyebrow">PATH TO ASTRONAUT DATA</div><h3 style="margin:6px 0 10px">NASA Life Sciences Data Archive (LSDA)</h3>
+    <p class="muted" style="font-size:12px;line-height:1.7">Astronaut research data such as in-flight OCT are archived by NASA and are <b>restricted</b>. Access is through the NASA Life Sciences Portal: a formal data request with a Data Use Agreement, reviewed by a board before approval.</p>
+    <p class="muted" style="font-size:12px;line-height:1.7">Next step for this project: request de-identified peripapillary OCT from the ISS Ocular Health study to <b>validate</b> the pipeline on astronauts and extend segmentation to the optic nerve head.</p>
+    <a class="text-link" href="https://nlsp.nasa.gov/explore/lsdahome" target="_blank" rel="noopener">NASA Life Sciences Portal ↗</a>
+  </section>
+</div>
+
+<section class="section-head mt"><div><div class="eyebrow">TRANSPARENCY</div><h3>Data used in this prototype</h3></div></section>
+<div class="table-wrap"><table><thead><tr><th>CATEGORY</th><th>SOURCE</th><th>USED FOR</th></tr></thead><tbody>
+<tr><td>NASA research findings</td><td>Mader 2011, Lee 2020, Macias 2020, Ong 2023; NASA SANS page</td><td>Problem definition, monitoring design (baseline → follow-up), alert concept</td></tr>
+<tr><td>NASA open experimental data</td><td>OSDR OSD-816 (ex vivo human retina, ground study)</td><td>Scientific background on SANS mechanisms only</td></tr>
+<tr><td>Clinical OCT dataset</td><td>Duke DME dataset (Chiu et al. 2015) — 110 annotated macular B-scans, 10 patients with diabetic macular edema</td><td>Training and testing the U-Net</td></tr>
+<tr><td>Synthetic data</td><td>Generated by <code>orbital/demo.py</code></td><td>Demo astronauts and longitudinal trends</td></tr>
+<tr><td>Real astronaut observations</td><td>None in this app (restricted, LSDA)</td><td>—</td></tr>
+</tbody></table></div>
+
+<section class="panel auto mt"><div class="eyebrow">REFERENCES</div>
+  <ol class="notes" style="font-size:11px">
+    <li>NASA. <i>What is Spaceflight Associated Neuro-ocular Syndrome?</i> <a href="https://www.nasa.gov/image-article/what-spaceflight-associated-neuro-ocular-syndrome/" target="_blank" rel="noopener">nasa.gov</a></li>
+    <li>Mader TH, et al. Optic disc edema, globe flattening, choroidal folds, and hyperopic shifts observed in astronauts after long-duration space flight. <i>Ophthalmology</i> 2011;118(10):2058–2069. <a href="https://doi.org/10.1016/j.ophtha.2011.06.021" target="_blank" rel="noopener">doi:10.1016/j.ophtha.2011.06.021</a></li>
+    <li>Lee AG, Mader TH, Gibson CR, et al. Spaceflight associated neuro-ocular syndrome (SANS) and the neuro-ophthalmologic effects of microgravity: a review and an update. <i>npj Microgravity</i> 2020;6:7. <a href="https://doi.org/10.1038/s41526-020-0097-9" target="_blank" rel="noopener">doi:10.1038/s41526-020-0097-9</a></li>
+    <li>Macias BR, Patel NB, Gibson CR, et al. Association of long-duration spaceflight with anterior and posterior ocular structure changes in astronauts and their recovery. <i>JAMA Ophthalmol</i> 2020;138(5):553–559. <a href="https://doi.org/10.1001/jamaophthalmol.2020.0673" target="_blank" rel="noopener">doi:10.1001/jamaophthalmol.2020.0673</a></li>
+    <li>Ong J, Tarver W, Brunstetter T, et al. Spaceflight associated neuro-ocular syndrome: proposed pathogenesis, terrestrial analogs, and emerging countermeasures. <i>Br J Ophthalmol</i> 2023;107. <a href="https://ntrs.nasa.gov/citations/20220008786" target="_blank" rel="noopener">NASA NTRS 20220008786</a></li>
+    <li>NASA Open Science Data Repository. OSD-816. <a href="https://osdr.nasa.gov/bio/repo/data/studies/OSD-816" target="_blank" rel="noopener">osdr.nasa.gov</a></li>
+    <li>Chiu SJ, Allingham MJ, Mettu PS, Cousins SW, Izatt JA, Farsiu S. Kernel regression based segmentation of optical coherence tomography images with diabetic macular edema. <i>Biomed Opt Express</i> 2015;6(4):1172–1194.</li>
+  </ol>
+</section>
+<div class="notice"><b>Scope</b><span>This page summarises published research for context. ORBITAL EYE AI is a research prototype; it was not trained on astronaut data and does not diagnose SANS.</span></div>
+{% endblock %}

@@ -10,7 +10,7 @@ def upload(client, file, name, **form):
 
 
 def test_pages_load_on_fresh_database(client):
-    for path in ["/", "/analysis", "/history", "/astronauts", "/astronauts/new", "/alerts", "/model"]:
+    for path in ["/", "/analysis", "/history", "/astronauts", "/astronauts/new", "/alerts", "/model", "/nasa"]:
         assert client.get(path).status_code == 200, path
 
 

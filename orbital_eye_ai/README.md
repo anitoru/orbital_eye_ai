@@ -85,6 +85,9 @@ so no performance figures exist.**
 
 ## Scientific background and data sources
 
+The app's **NASA research** page (`/nasa`) summarises the NASA evidence base (SANS findings, ISS Ocular Health OCT
+study, OSDR OSD-816, LSDA access path), maps it to the prototype's design, and lists exactly which data were used.
+
 - **SANS** – optic disc edema, globe flattening, choroidal folds and peripapillary retinal thickening reported in
   long-duration crew members (Mader et al., *Ophthalmology* 2011; Lee et al., *npj Microgravity* 2020).
   Most SANS OCT findings concern the **optic nerve head**, while public annotated datasets are mostly **macular** scans.

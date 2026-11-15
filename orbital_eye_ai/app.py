@@ -358,6 +358,10 @@ def register_routes(app: Flask) -> None:
     def model():
         return render_template("model.html", model=inference.model_status(get_cfg().MODEL_PATH))
 
+    @app.route("/nasa")
+    def nasa():
+        return render_template("nasa.html")
+
     # ---------------- Files (not inside static/) ----------------
     @app.route("/uploads/<path:filename>")
     def uploaded_file(filename):
