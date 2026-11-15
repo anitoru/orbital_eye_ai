@@ -24,5 +24,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install PyTorch (CPU) for the training smoke test
+        run: pip install -r requirements-ml.txt matplotlib
+
       - name: Run tests
         run: pytest -v

@@ -20,5 +20,6 @@ Shared code: `orbital/ml/unet.py` (architecture) and `orbital/ml/metrics.py` (Di
 
 ## Known limitations
 - Duke DME is small (10 subjects, ~11 annotated B-scans each) and contains diabetic macular edema; results will not generalise to all devices or to optic-disc scans.
-- Training resizes the annotated central region to 512×512; the app resizes the whole B-scan. Expect weaker boundaries near the image edges.
+- Training resizes the annotated central region (~500 px wide) to 512×512; the app scales the whole B-scan to 512 px height keeping its proportions. Only the central ~2/3 of each Duke B-scan is annotated, so expect weaker boundaries near the image edges.
+- Verified on the real files (Nov 2026): 10 subjects × 11 annotated B-scans = 110; variables `images` (496×768×61), `manualLayers1/2` (8×768×61). A few columns inside the annotated range miss some boundaries; the loader interpolates them.
 - Report only the metrics printed by `train.py` / stored in the checkpoint. Do not quote numbers from papers as your own.

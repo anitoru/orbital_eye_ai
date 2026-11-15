@@ -73,7 +73,13 @@ def load_subject(path: str, annotator: int = 1) -> List[Tuple[np.ndarray, np.nda
             continue  # this B-scan is not annotated
         idx = np.nonzero(cols)[0]
         lo, hi = idx.min(), idx.max() + 1
-        b = b[:, lo:hi]
+        b = b[:, lo:hi].copy()
+        # A few columns inside the annotated range miss some boundaries: fill them from neighbours.
+        x = np.arange(b.shape[1])
+        for k in range(b.shape[0]):
+            ok = ~np.isnan(b[k])
+            if not ok.all():
+                b[k, ~ok] = np.interp(x[~ok], x[ok], b[k, ok])
         b = np.maximum.accumulate(b, axis=0)  # enforce boundary order top->bottom
         img = images[:, lo:hi, i].astype(np.float32) / 255.0
         samples.append((img, boundaries_to_mask(b, h)))

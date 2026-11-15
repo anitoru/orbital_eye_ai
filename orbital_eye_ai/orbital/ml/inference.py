@@ -50,7 +50,9 @@ class UNetSegmenter:
         from PIL import Image
 
         h, w = img.shape
-        ih, iw = self.input_hw
+        ih = self.input_hw[0]
+        # Keep the B-scan's proportions (the U-Net is fully convolutional); width must be a multiple of 16.
+        iw = max(16, int(round(w * ih / h / 16.0)) * 16)
         resized = np.asarray(
             Image.fromarray((img * 255).astype(np.uint8)).resize((iw, ih), Image.BILINEAR), dtype=np.float32
         ) / 255.0
