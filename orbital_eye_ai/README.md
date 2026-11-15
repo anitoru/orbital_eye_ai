@@ -1,5 +1,8 @@
 # ORBITAL EYE AI
 
+> **AI disclosure:** code and documentation in this project were written with the assistance of Claude (Anthropic),
+> directed and reviewed by the team. Details: [Use of AI tools](../README.md#use-of-ai-tools-super-intelligence-disclosure).
+
 **AI-assisted OCT monitoring prototype for astronaut eye health** — NASA Space Apps Challenge 2026,
 challenge *"Create Health Monitoring Software for Astronauts on Space Missions"*.
 

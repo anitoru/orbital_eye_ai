@@ -12,6 +12,9 @@ Business logic lives in the `orbital/` package:
   orbital/monitoring.py  baseline comparison, timelines, alerts
   orbital/ml/            U-Net, inference, evaluation metrics
   orbital/demo.py        synthetic demonstration data
+
+AI disclosure: this codebase was written with the assistance of Claude (Anthropic), an AI coding
+assistant, directed and reviewed by the team. See "Use of AI tools" in the repository README.
 """
 from __future__ import annotations
 
