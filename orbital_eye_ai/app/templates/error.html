@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }} | ORBITAL EYE AI{% endblock %}
+{% block content %}
+<div class="empty-state"><div class="empty-icon">!</div><h4>Error {{ code }}</h4><p>{{ message }}</p><a class="text-link" href="{{ url_for('index') }}">Back to mission overview →</a></div>
+{% endblock %}

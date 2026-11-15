@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}New astronaut | ORBITAL EYE AI{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow">CREW / NEW PROFILE</div><h1>New astronaut profile</h1><p>Use an anonymised identifier. This prototype must not store real personal or medical data.</p></div></section>
+<section class="panel auto" style="max-width:640px">
+  <form method="post">
+    <div class="form-grid">
+      <div class="field"><label for="id">ASTRONAUT ID</label><input id="id" name="id" value="{{ form.id }}" placeholder="AST-005" maxlength="20" required></div>
+      <div class="field"><label for="display_name">DISPLAY NAME (ANONYMISED)</label><input id="display_name" name="display_name" value="{{ form.display_name }}" placeholder="Crew member E" maxlength="60" required></div>
+      <div class="field"><label for="mission">MISSION</label><input id="mission" name="mission" value="{{ form.mission }}" placeholder="ARTEMIS-SIM 2" maxlength="60" required></div>
+      <div class="field"><label for="mission_status">MISSION STATUS</label><select id="mission_status" name="mission_status">{% for s in statuses %}<option value="{{ s }}" {% if s == form.mission_status %}selected{% endif %}>{{ s }}</option>{% endfor %}</select></div>
+      <div class="field wide"><label for="notes">NOTES</label><textarea id="notes" name="notes" rows="3" maxlength="500">{{ form.notes }}</textarea></div>
+    </div>
+    <button class="button primary" type="submit">Create profile <span>→</span></button>
+    <a class="button ghost" href="{{ url_for('astronauts') }}">Cancel</a>
+  </form>
+</section>
+{% endblock %}

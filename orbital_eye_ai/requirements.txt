@@ -1,2 +1,8 @@
+# Web application (Codespaces / hosting). Python 3.9+.
 Flask>=3.0,<4.0
 Pillow>=10.0,<12.0
+numpy>=1.26
+python-dotenv>=1.0
+gunicorn>=22.0; platform_system != "Windows"
+# Tests
+pytest>=8.0

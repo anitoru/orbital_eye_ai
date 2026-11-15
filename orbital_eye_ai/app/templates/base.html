@@ -17,13 +17,17 @@
       </a>
       <div class="side-label">WORKSPACE</div>
       <nav>
-        <a class="{% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}"><span>▦</span> Mission overview</a>
-        <a class="{% if request.endpoint == 'analysis' %}active{% endif %}" href="{{ url_for('analysis') }}"><span>◉</span> OCT analysis</a>
-        <a class="{% if request.endpoint == 'history' %}active{% endif %}" href="{{ url_for('history') }}"><span>◷</span> Scan history</a>
+        {% set ep = request.endpoint %}
+        <a class="{% if ep == 'index' %}active{% endif %}" href="{{ url_for('index') }}"><span>▦</span> Mission overview</a>
+        <a class="{% if ep == 'analysis' %}active{% endif %}" href="{{ url_for('analysis') }}"><span>◉</span> OCT analysis</a>
+        <a class="{% if ep in ['history', 'scan_detail', 'compare'] %}active{% endif %}" href="{{ url_for('history') }}"><span>◷</span> Scan history</a>
+        <a class="{% if ep in ['astronauts', 'astronaut_detail', 'astronaut_new'] %}active{% endif %}" href="{{ url_for('astronauts') }}"><span>◎</span> Astronauts</a>
+        <a class="{% if ep == 'alerts' %}active{% endif %}" href="{{ url_for('alerts') }}"><span>△</span> Review alerts</a>
+        <a class="{% if ep == 'model' %}active{% endif %}" href="{{ url_for('model') }}"><span>⌬</span> AI model status</a>
       </nav>
       <div class="sidebar-bottom">
-        <div class="status-dot"></div>
-        <div><b>LOCAL PROTOTYPE</b><small>Model not connected</small></div>
+        <div class="status-dot {{ 'ok' if model_state == 'loaded' else 'off' }}"></div>
+        <div><b>LOCAL PROTOTYPE</b><small>AI model: {{ model_label | lower }}</small></div>
       </div>
     </aside>
     <main class="main">
@@ -37,9 +41,10 @@
         {% endif %}
       {% endwith %}
       {% block content %}{% endblock %}
-      <footer>ORBITAL EYE AI <span>RESEARCH PROTOTYPE · NOT FOR CLINICAL USE</span></footer>
+      <footer>ORBITAL EYE AI <span>RESEARCH PROTOTYPE · NOT FOR CLINICAL USE · DOES NOT DIAGNOSE SANS</span></footer>
     </main>
   </div>
   <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>
