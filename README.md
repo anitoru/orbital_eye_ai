@@ -36,7 +36,7 @@ pre-flight baseline (ISS Ocular Health study, Macias et al. 2020).
 - **Data:** public **Duke DME OCT dataset** (Chiu et al., *Biomed. Opt. Express* 2015) — 110 expert-annotated B-scans
   from 10 patients, split **by patient**: 6 train / 2 validation / 2 test.
 - **Training:** Google Colab GPU — fully reproducible with [`training/colab_train.ipynb`](orbital_eye_ai/training/colab_train.ipynb).
-- **Results:** held-out test-set metrics are shown on the app's *AI model status* page.
+- **Results:** held-out test-set metrics (Dice, IoU, boundary error) are produced by the Colab notebook.
 - **Limits:** trained on clinical macular scans of patients with diabetic macular edema, **not on astronauts**;
   SANS mainly affects the optic disc, which public datasets do not cover. Validation on NASA astronaut OCT
   (restricted, NASA Life Sciences Data Archive) would be the next step.

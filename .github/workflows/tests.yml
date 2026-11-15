@@ -42,7 +42,7 @@ jobs:
           docker run -d --name demo -p 7860:7860 orbital-eye-demo
           for i in $(seq 1 60); do curl -sf http://localhost:7860/ > /dev/null && break; sleep 2; done
           docker logs demo
-          for page in / /astronauts /astronauts/AST-001 /alerts /model /nasa; do
+          for page in / /astronauts /astronauts/AST-001 /alerts /nasa; do
             curl -sf "http://localhost:7860$page" | grep -q "ORBITAL EYE" || { echo "FAILED $page"; exit 1; }
             echo "OK $page"
           done

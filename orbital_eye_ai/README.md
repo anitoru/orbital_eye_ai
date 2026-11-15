@@ -20,7 +20,6 @@ challenge *"Create Health Monitoring Software for Astronauts on Space Missions"*
 | U-Net retinal layer segmentation (PyTorch) | 🟡 code complete, **untrained** — train in Colab |
 | Longitudinal comparison with baseline, Chart.js trends, side-by-side compare | ✅ working |
 | Medical-review alerts with configurable **demonstration** threshold | ✅ working |
-| AI model status page (honest: shows "untrained" until a real checkpoint exists) | ✅ working |
 | Unit tests (24) | ✅ passing |
 
 ## Run it (GitHub Codespaces or locally)
@@ -80,7 +79,8 @@ orbital_eye_ai/
 
 See `training/README.md` and `training/colab_train.ipynb`. In short: put the Duke DME `.mat` files on Google Drive,
 run the notebook on a Colab GPU, download `retinal_unet.pt` into `models/`, `pip install -r requirements-ml.txt`, restart.
-Test-set metrics stored in the checkpoint then appear on the *AI model status* page. **No model has been trained yet,
+Test-set metrics are printed by the notebook and saved to `test_metrics.json` next to the checkpoint.
+Every examination page shows which method (U-Net or non-AI heuristic) produced its measurement. **No model has been trained yet,
 so no performance figures exist.**
 
 ## Scientific background and data sources

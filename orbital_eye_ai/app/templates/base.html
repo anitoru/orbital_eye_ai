@@ -23,7 +23,6 @@
         <a class="{% if ep in ['history', 'scan_detail', 'compare'] %}active{% endif %}" href="{{ url_for('history') }}"><span>◷</span> Scan history</a>
         <a class="{% if ep in ['astronauts', 'astronaut_detail', 'astronaut_new'] %}active{% endif %}" href="{{ url_for('astronauts') }}"><span>◎</span> Astronauts</a>
         <a class="{% if ep == 'alerts' %}active{% endif %}" href="{{ url_for('alerts') }}"><span>△</span> Review alerts</a>
-        <a class="{% if ep == 'model' %}active{% endif %}" href="{{ url_for('model') }}"><span>⌬</span> AI model status</a>
         <a class="{% if ep == 'nasa' %}active{% endif %}" href="{{ url_for('nasa') }}"><span>✦</span> NASA research</a>
       </nav>
       <div class="sidebar-bottom">
