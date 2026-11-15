@@ -1,0 +1,14 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+*.db
+uploads/
+models/*.pt
+models/*.pth
+data/datasets/
+training/
+tests/
+deploy/

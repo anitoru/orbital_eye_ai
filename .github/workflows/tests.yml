@@ -29,3 +29,21 @@ jobs:
 
       - name: Run tests
         run: pytest -v
+
+  docker:
+    # Builds the public-demo container exactly as Hugging Face Spaces will, then checks it serves pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t orbital-eye-demo orbital_eye_ai
+      - name: Start container and check pages
+        run: |
+          docker run -d --name demo -p 7860:7860 orbital-eye-demo
+          for i in $(seq 1 60); do curl -sf http://localhost:7860/ > /dev/null && break; sleep 2; done
+          docker logs demo
+          for page in / /astronauts /astronauts/AST-001 /alerts /model /nasa; do
+            curl -sf "http://localhost:7860$page" | grep -q "ORBITAL EYE" || { echo "FAILED $page"; exit 1; }
+            echo "OK $page"
+          done
+          curl -sf http://localhost:7860/ | grep -q "Public demo"
