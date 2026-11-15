@@ -1,0 +1,5 @@
+# Optional: enables U-Net inference in the web app once a trained checkpoint is in models/.
+# CPU-only PyTorch (smaller download). Install with:
+#   pip install -r requirements-ml.txt
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.1

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Compare examinations | ORBITAL EYE AI{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow">LONGITUDINAL / SIDE BY SIDE</div><h1>Compare examinations</h1><p>Earlier examination on the left, later on the right.</p></div><a class="button ghost" href="{{ url_for('history') }}">← Back to history</a></section>
+{% for w in warnings %}<div class="flash error" style="margin:0 0 10px">{{ w }}</div>{% endfor %}
+<div class="grid-2">
+  {% for s in [a, b] %}
+  <section class="panel auto">
+    <div class="panel-title"><div><div class="eyebrow">{{ 'EARLIER' if loop.first else 'LATER' }} · {{ s.exam_date or s.created_at[:10] }}</div><h3><a class="text-link" style="font-size:15px" href="{{ url_for('scan_detail', scan_id=s.id) }}">{{ s.filename }}</a></h3></div><span class="pill info">{{ s.exam_phase or '-' }} · {{ s.eye or '-' }}</span></div>
+    <figure class="image-card" style="margin:0"><img src="{{ url_for('uploaded_file', filename=('derived/' ~ s.overlay_name) if s.overlay_name else s.stored_name) }}" alt="Overlay of {{ s.filename }}"><figcaption><span>{{ s.astronaut_id or 'UNASSIGNED' }}</span><span>{{ (s.seg_method or 'legacy') | upper }}</span></figcaption></figure>
+    <dl class="kv mt"><dt>THICKNESS</dt><dd>{{ s.thickness_mean_px if s.thickness_mean_px is not none else '-' }} px</dd><dt>QUALITY</dt><dd>{{ s.quality_status or '-' }}</dd></dl>
+  </section>
+  {% endfor %}
+</div>
+{% if result %}
+<section class="panel auto mt"><div class="eyebrow">CHANGE</div>
+  <div class="big-number {{ 'change-up' if result.pct_change and result.pct_change > 0 else 'change-down' }}">{{ result.pct_change | signed }}<small>% ({{ result.difference | signed }} px)</small></div>
+  <p class="muted">{{ result.measurement }}: {{ result.previous }} → {{ result.current }} px. A change is a trend indicator for medical review, not evidence of SANS.</p></section>
+{% endif %}
+{% endblock %}

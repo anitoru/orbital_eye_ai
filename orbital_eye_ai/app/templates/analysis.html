@@ -2,39 +2,47 @@
 {% block title %}OCT Analysis | ORBITAL EYE AI{% endblock %}
 {% block content %}
 <section class="page-heading">
-  <div><div class="eyebrow">IMAGE WORKSPACE / OCT</div><h1>OCT image analysis</h1><p>Upload a retinal OCT image to create a scan record.</p></div>
-  <span class="pill neutral">AI MODEL: NOT CONNECTED</span>
+  <div><div class="eyebrow">IMAGE WORKSPACE / OCT</div><h1>OCT image analysis</h1><p>Upload a retinal OCT B-scan, link it to an astronaut and examination date, and run the analysis pipeline.</p></div>
+  <span class="pill {{ 'ok' if model.state == 'loaded' else 'neutral' }}">AI MODEL: {{ model.label }}</span>
 </section>
 <div class="analysis-layout">
   <section class="panel upload-panel">
     <div class="panel-title"><div><div class="eyebrow">INPUT</div><h3>Upload examination</h3></div><span class="step">01 / 02</span></div>
     <form method="post" enctype="multipart/form-data" id="upload-form">
-      <label class="dropzone" for="oct_image" id="dropzone">
+      <div class="form-grid">
+        <div class="field wide"><label for="astronaut_id">ASTRONAUT</label>
+          <select name="astronaut_id" id="astronaut_id">
+            <option value="">Unassigned (quick image check)</option>
+            {% for a in astronauts %}<option value="{{ a.id }}" {% if a.id == preselect %}selected{% endif %}>{{ a.id }} — {{ a.display_name }}</option>{% endfor %}
+          </select></div>
+        <div class="field"><label for="exam_date">EXAMINATION DATE</label><input type="date" name="exam_date" id="exam_date" value="{{ today }}" required></div>
+        <div class="field"><label for="exam_phase">PHASE</label>
+          <select name="exam_phase" id="exam_phase"><option value="">Not specified</option>{% for p in phases %}<option value="{{ p }}">{{ p }}</option>{% endfor %}</select></div>
+        <div class="field"><label for="eye">EYE</label>
+          <select name="eye" id="eye"><option value="">Not specified</option>{% for e in eyes %}<option value="{{ e }}">{{ e }} ({{ 'right' if e == 'OD' else 'left' }})</option>{% endfor %}</select></div>
+      </div>
+      <label class="dropzone compact" for="oct_image" id="dropzone">
         <div class="upload-symbol">↑</div><strong>Drop OCT image here</strong><span>or browse files from your device</span>
-        <small>PNG · JPG · TIFF · BMP / MAX 20 MB</small>
+        <small>PNG · JPG · TIFF (incl. 16-bit / multi-page) · BMP / MAX 20 MB</small>
         <input type="file" name="oct_image" id="oct_image" accept=".png,.jpg,.jpeg,.tif,.tiff,.bmp" required>
       </label>
       <div id="file-name" class="file-name">No file selected</div>
-      <button class="button primary full" type="submit">Upload and inspect image <span>→</span></button>
+      <button class="button primary full" type="submit">Upload and analyse <span>→</span></button>
     </form>
-    <div class="privacy-note">Files are stored locally in the project’s <code>uploads/</code> folder. Use only public, de-identified research images.</div>
+    <div class="privacy-note">Files are stored in the server's private <code>uploads/</code> folder (not committed to Git). Use only public, de-identified research images or synthetic data.</div>
   </section>
   <section class="panel result-panel">
-    <div class="panel-title"><div><div class="eyebrow">OUTPUT</div><h3>Analysis result</h3></div><span class="step">02 / 02</span></div>
-    {% if result %}
-      <div class="success-banner"><span>✓</span><div><b>Image uploaded successfully</b><small>Basic image inspection completed. AI inference is not yet enabled.</small></div></div>
-      <div class="preview-box"><img src="{{ url_for('uploaded_file', filename=result.stored_name) }}" alt="Uploaded OCT image preview"></div>
-      <div class="metrics">
-        <div><small>IMAGE WIDTH</small><b>{{ result.width }} px</b></div>
-        <div><small>IMAGE HEIGHT</small><b>{{ result.height }} px</b></div>
-        <div><small>MEAN INTENSITY</small><b>{{ result.mean_intensity }}</b></div>
-      </div>
-      <div class="model-placeholder"><div class="amber-dot"></div><div><b>AI analysis unavailable</b><p>Connect a trained segmentation model in <code>models/</code> to enable retinal-layer analysis.</p></div></div>
-    {% else %}
-      <div class="placeholder-visual"><div class="scan-lines"></div><div class="crosshair">＋</div><span>AWAITING OCT IMAGE</span><small>Image preview and analysis output will appear here.</small></div>
-      <div class="placeholder-steps"><div><b>01</b><span>Upload scan</span></div><div><b>02</b><span>Run image QC</span></div><div><b>03</b><span>Connect AI model</span></div></div>
-    {% endif %}
+    <div class="panel-title"><div><div class="eyebrow">PIPELINE</div><h3>What happens to the image</h3></div><span class="step">02 / 02</span></div>
+    <ol class="notes">
+      <li><b>Validation</b> — extension, real file format, size, readability, dimensions.</li>
+      <li><b>Quality report</b> — format, bit depth, intensity statistics, contrast, saturation, noise (technical only).</li>
+      <li><b>Preprocessing</b> — percentile contrast stretch and 3×3 median filter (no CLAHE, to avoid false edges).</li>
+      <li><b>Boundary detection</b> — {% if model.state == 'loaded' %}U-Net retinal layer segmentation{% else %}<b>non-AI heuristic</b> (ILM / RPE) until a trained U-Net is connected{% endif %}.</li>
+      <li><b>Measurement</b> — ILM→RPE distance per column, in <b>pixels</b>.</li>
+      <li><b>Monitoring</b> — comparison with the astronaut's baseline of the same eye; review alert if the change exceeds ±{{ alert_threshold }}% (demonstration threshold).</li>
+    </ol>
+    <div class="placeholder-visual mt" style="height:150px"><div class="scan-lines"></div><div class="crosshair">＋</div><span>RESULTS OPEN ON THE EXAMINATION PAGE</span></div>
   </section>
 </div>
-<div class="notice"><b>Important limitation</b><span>The current inspection reports image dimensions and average grayscale intensity only. These values are not retinal thickness measurements and must not be interpreted medically.</span></div>
+<div class="notice"><b>Important limitation</b><span>Image statistics are technical quality metadata. Thickness values are pixel distances, not micrometres, and are not clinically validated. The system does not diagnose SANS.</span></div>
 {% endblock %}

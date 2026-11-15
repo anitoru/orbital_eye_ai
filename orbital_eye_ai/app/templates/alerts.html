@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Review alerts | ORBITAL EYE AI{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow">MEDICAL REVIEW / ALERTS</div><h1>Review alerts</h1><p>Generated when a usable measurement differs from the same eye's baseline by more than ±{{ alert_threshold }}%.</p></div></section>
+<div class="notice" style="margin:0 0 18px"><b>Demonstration threshold</b><span>The ±{{ alert_threshold }}% rule (env. variable <code>ALERT_THRESHOLD_PCT</code>) is illustrative and NOT clinically validated. Alerts recommend ophthalmological review; they do not indicate SANS.</span></div>
+{% if alerts %}
+<div class="table-wrap"><table><thead><tr><th>DATE</th><th>ASTRONAUT</th><th>CATEGORY</th><th>MEASUREMENT</th><th>PREVIOUS</th><th>CURRENT</th><th>CHANGE</th><th>RECOMMENDATION</th></tr></thead><tbody>
+{% for al in alerts %}<tr>
+  <td><a href="{{ url_for('scan_detail', scan_id=al.scan_id) }}">{{ al.exam_date }}</a></td>
+  <td><a href="{{ url_for('astronaut_detail', astronaut_id=al.astronaut_id) }}">{{ al.astronaut_id }}</a> <span class="muted">{{ al.eye or '' }}</span></td>
+  <td><span class="pill alert">{{ al.category }}</span></td><td>{{ al.measurement }}</td>
+  <td>{{ al.previous_value }} {{ al.unit }}<br><a class="muted" href="{{ url_for('scan_detail', scan_id=al.baseline_scan_id) }}">baseline</a></td>
+  <td>{{ al.current_value }} {{ al.unit }}</td>
+  <td class="{{ 'change-up' if al.pct_change > 0 else 'change-down' }}">{{ al.pct_change | signed }}%</td>
+  <td style="white-space:normal;min-width:240px">Medical review recommended</td>
+</tr>{% endfor %}
+</tbody></table></div>
+{% else %}
+<div class="empty-state"><div class="empty-icon">△</div><h4>No alerts</h4><p>No examination exceeds the demonstration threshold.</p></div>
+{% endif %}
+{% endblock %}

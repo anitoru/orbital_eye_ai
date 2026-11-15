@@ -1,0 +1,7 @@
+# Google Colab training environment (Colab already ships torch, numpy, scipy, matplotlib)
+torch>=2.1
+numpy>=1.26
+scipy>=1.11
+h5py>=3.9
+matplotlib>=3.8
+Pillow>=10.0

@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# Secrets
+.env
+
+# Local data: database, uploaded images, datasets, model weights
+*.db
+*.sqlite3
+uploads/
+orbital_eye_ai/data/datasets/*
+!orbital_eye_ai/data/datasets/PUT_DATASETS_HERE.txt
+*.pt
+*.pth
+*.ckpt
+*.mat
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

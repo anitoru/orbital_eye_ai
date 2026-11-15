@@ -1,75 +1,111 @@
-# ORBITAL EYE AI — starter application
+# ORBITAL EYE AI
 
-A hackathon-ready **software scaffold** for longitudinal ophthalmic monitoring during spaceflight.
-The current version supports OCT image upload, basic image quality/file inspection, and scan history.
-It does **not** yet run an AI model or diagnose SANS.
+**AI-assisted OCT monitoring prototype for astronaut eye health** — NASA Space Apps Challenge 2026,
+challenge *"Create Health Monitoring Software for Astronauts on Space Missions"*.
 
-## 1. Run locally
+> **Research prototype. Not a medical device. Does not diagnose Spaceflight-Associated Neuro-ocular Syndrome (SANS).**
+> All astronaut profiles and demo scans in this repository are fictional / synthetic.
 
-Python 3.10+ is recommended.
+## What it does
+
+| Area | Status |
+|---|---|
+| Astronaut profiles (anonymised IDs, mission, status) | ✅ working |
+| OCT upload linked to astronaut, exam date, phase (baseline / in-flight / post-flight), eye | ✅ working |
+| Validation: extension **and** real file format, size, corrupt files, dimensions, decompression bombs | ✅ working |
+| 8-bit, 16-bit and multi-page TIFF, RGB → grayscale | ✅ working |
+| Technical quality report (format, bit depth, intensity stats, contrast, saturation, noise, status) | ✅ working |
+| Preprocessing (percentile contrast stretch + 3×3 median; CLAHE deliberately not default) | ✅ working |
+| Boundary detection → ILM–RPE thickness in **pixels** + overlay | ✅ heuristic (non-AI) fallback |
+| U-Net retinal layer segmentation (PyTorch) | 🟡 code complete, **untrained** — train in Colab |
+| Longitudinal comparison with baseline, Chart.js trends, side-by-side compare | ✅ working |
+| Medical-review alerts with configurable **demonstration** threshold | ✅ working |
+| AI model status page (honest: shows "untrained" until a real checkpoint exists) | ✅ working |
+| Unit tests (24) | ✅ passing |
+
+## Run it (GitHub Codespaces or locally)
 
 ```bash
+cd orbital_eye_ai            # the app lives in this sub-folder
 python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# macOS/Linux:
-source .venv/bin/activate
-
+source .venv/bin/activate    # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-python app.py
+flask seed-demo              # optional: 4 fictional astronauts with synthetic OCT scans
+python app.py                # or: flask run
 ```
 
-Open http://127.0.0.1:5000
+Open http://127.0.0.1:5000. In Codespaces the port is forwarded automatically (Ports tab).
+If the preview does not open, run `HOST=0.0.0.0 python app.py`.
 
-## 2. Where your datasets and model go
+Other commands: `flask init-db`, `flask remove-demo`, `pytest -q`.
 
-- `data/datasets/` — place downloaded public OCT datasets here. Keep the original dataset license and citation.
-- `models/` — place trained model weights here (for example `retinal_segmentation.pt`).
-- `training/` — training and evaluation code belongs here.
-- `uploads/` — images uploaded through the app (local prototype storage).
+Configuration is via environment variables (see `.env.example`): `SECRET_KEY`, `FLASK_DEBUG`, `HOST`, `PORT`,
+`MAX_UPLOAD_MB`, `ALERT_THRESHOLD_PCT`, `MODEL_PATH`. Never commit `.env`.
 
-Do not commit private patient data or large datasets to a public repository.
-
-## 3. Current functionality
-
-- OCT image upload (PNG, JPG, TIFF, BMP; 20 MB maximum).
-- Basic image readability check, dimensions, and mean grayscale intensity.
-- Local scan history stored in SQLite.
-- Clearly marked model-integration placeholder.
-
-The basic image statistics are technical quality metadata only. They are not clinical measurements.
-
-## 4. Model integration plan
-
-The intended next step is to add a validated OCT segmentation/inference pipeline:
-
-1. Confirm dataset modality, image format, labels and license.
-2. Split data by patient/subject, not by image, to avoid leakage.
-3. Train and evaluate a segmentation model (e.g. U-Net) using expert-annotated retinal boundaries.
-4. Report metrics such as Dice score and boundary error on a held-out subject-level test set.
-5. Add inference in `app.py` and render predicted boundaries in the analysis page.
-6. Compare measurements with the astronaut's own pre-flight baseline.
-
-Do not train a SANS classifier unless the dataset contains suitable, clinically meaningful labels and enough independent subjects.
-
-## 5. Suggested project structure
+## Project structure
 
 ```text
 orbital_eye_ai/
-├── app.py
-├── requirements.txt
-├── orbital_eye.db          # created automatically
-├── app/
-│   ├── templates/
-│   └── static/
-├── data/
-│   └── datasets/           # ADD YOUR DATA HERE
-├── models/                 # ADD TRAINED WEIGHTS HERE
-├── training/               # ADD TRAINING CODE HERE
-└── uploads/
+├── app.py                  Flask routes + CLI commands (create_app factory)
+├── orbital/
+│   ├── config.py           settings from environment variables
+│   ├── db.py               SQLite schema (astronauts, scans, alerts) + automatic upgrade of old DBs
+│   ├── imaging.py          validation, 16-bit handling, preprocessing, quality report
+│   ├── boundaries.py       boundary detection (U-Net or heuristic) + pixel thickness + overlay
+│   ├── pipeline.py         upload → quality → preprocess → segment → measure
+│   ├── monitoring.py       baseline comparison, timelines, alerts
+│   ├── demo.py             fictional astronauts + synthetic OCT generator
+│   └── ml/                 unet.py (PyTorch U-Net), inference.py, metrics.py (Dice, IoU, …)
+├── app/templates, app/static   UI (Chart.js from cdnjs)
+├── training/               Colab notebook, Duke DME loader, train/evaluate script
+├── tests/                  pytest suite
+├── data/datasets/          local datasets only (git-ignored)
+├── models/                 model checkpoints only (git-ignored)
+└── uploads/                uploaded images + derived previews (git-ignored, not public static)
 ```
 
-## Medical and scientific limitations
+## How measurements work (and their limits)
 
-This is a research/hackathon prototype, not a medical device. It must not be used to make clinical decisions.
-SANS is multifactorial. OCT changes alone do not establish a diagnosis. The app currently does not estimate SANS risk, identify edema, or interpret retinal layers.
+1. **Quality metrics** (dimensions, intensity, contrast…) are technical image properties, never clinical values.
+2. **Thickness** is the vertical distance in **pixels** between the ILM and the outer retinal boundary, per image column.
+   Pixels are not micrometres: conversion needs the scanner's axial pixel spacing, which uploaded PNG/JPEG files do not carry.
+3. Until a trained U-Net checkpoint is connected, boundaries come from a **classical intensity heuristic** (first strong
+   reflectivity rise = ILM, brightest outer band = RPE). It works on clean macular B-scans and on the synthetic demo data,
+   but it is **not validated** and fails on pathology, shadows and artefacts. Every result is labelled with its method.
+4. Heuristic and U-Net measurements are never compared with each other; comparisons also require the same eye.
+5. **Alerts** fire only when a usable measurement, a usable baseline and a threshold breach all exist. The default
+   threshold (±8 %) is **illustrative only**. An alert means "recommend ophthalmological review" — not SANS.
+
+## Training the U-Net
+
+See `training/README.md` and `training/colab_train.ipynb`. In short: put the Duke DME `.mat` files on Google Drive,
+run the notebook on a Colab GPU, download `retinal_unet.pt` into `models/`, `pip install -r requirements-ml.txt`, restart.
+Test-set metrics stored in the checkpoint then appear on the *AI model status* page. **No model has been trained yet,
+so no performance figures exist.**
+
+## Scientific background and data sources
+
+- **SANS** – optic disc edema, globe flattening, choroidal folds and peripapillary retinal thickening reported in
+  long-duration crew members (Mader et al., *Ophthalmology* 2011; Lee et al., *npj Microgravity* 2020).
+  Most SANS OCT findings concern the **optic nerve head**, while public annotated datasets are mostly **macular** scans.
+  This prototype therefore demonstrates the *pipeline* (segmentation → thickness → change vs. baseline); applying it to
+  astronaut optic-disc OCT would need appropriate data and validation.
+- **Duke DME OCT dataset** – Chiu et al., "Kernel regression based segmentation of optical coherence tomography images
+  with diabetic macular edema", *Biomedical Optics Express* 6(4), 2015. Manual layer boundaries by two experts.
+  Check the dataset's terms before use; do not redistribute it.
+- **NASA Open Science Data Repository (OSDR)** – https://osdr.nasa.gov/bio/ . *OSD-816* is an experimental human eye
+  tissue model related to SANS mechanisms; it is **not** an astronaut clinical OCT dataset and is used here only as
+  scientific background.
+- **Space Omics and Medical Atlas (SOMA)** – https://soma.weill.cornell.edu/ (background on spaceflight biology).
+- **U-Net** – Ronneberger, Fischer, Brox, MICCAI 2015. **ReLayNet** – Roy et al., *Biomed. Opt. Express* 2017
+  (OCT layer segmentation on Duke DME).
+
+Data categories are kept separate: experimental research (OSDR), clinical OCT datasets (Duke), synthetic demo data
+(generated in `orbital/demo.py`), and real astronaut observations (published literature only — none in this app).
+
+## Deployment for the final demo
+
+Codespaces is for development, not permanent hosting. Recommended: **Render** (web service, start command
+`gunicorn "app:create_app()"`, root directory `orbital_eye_ai`, add a persistent disk for `uploads/` and the DB) or
+**Hugging Face Spaces** (Docker) if the U-Net is connected. Set `SECRET_KEY` and keep `FLASK_DEBUG=0`.
+Uploaded images are served without login — use only public, de-identified or synthetic images.

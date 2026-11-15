@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}AI model status | ORBITAL EYE AI{% endblock %}
+{% block content %}
+<section class="page-heading"><div><div class="eyebrow">AI / MODEL REGISTRY</div><h1>AI model status</h1><p>What the analysis pipeline is using right now.</p></div>
+  <span class="pill {{ 'ok' if model.state == 'loaded' else 'acceptable' }}">{{ model.label }}</span></section>
+<div class="grid-2">
+  <section class="panel auto"><div class="eyebrow">MODEL</div><h3 style="margin:6px 0 12px">{{ model.name }}</h3>
+    <dl class="kv">
+      <dt>ARCHITECTURE</dt><dd>{{ model.architecture }}</dd>
+      <dt>VERSION</dt><dd>{{ model.version }}</dd>
+      <dt>STATUS</dt><dd>{{ model.state }}</dd>
+      <dt>TRAINING</dt><dd>{{ model.training }}</dd>
+      <dt>TRAINED ON</dt><dd>{{ model.trained_on }}</dd>
+      <dt>SUPPORTED INPUT</dt><dd>{{ model.supported }}</dd>
+      <dt>CHECKPOINT</dt><dd><code>models/{{ model.checkpoint }}</code></dd>
+      <dt>FALLBACK</dt><dd>{{ model.fallback }}</dd>
+    </dl></section>
+  <section class="panel auto"><div class="eyebrow">EVALUATION</div><h3 style="margin:6px 0 12px">Last available test-set metrics</h3>
+    {% if model.metrics %}
+      <dl class="kv">{% for k, v in model.metrics.items() %}<dt>{{ k | upper }}</dt><dd>{{ v }}</dd>{% endfor %}</dl>
+      <p class="muted" style="font-size:10px">Read from the checkpoint written by <code>training/train.py</code>.</p>
+    {% else %}
+      <p class="muted">No metrics available — the model has not been trained or no checkpoint is connected. No performance figures are shown until a real evaluation exists.</p>
+    {% endif %}</section>
+</div>
+<section class="panel auto mt"><div class="eyebrow">HOW TO CONNECT A TRAINED MODEL</div>
+  <ol class="notes">
+    <li>Train in Google Colab with <code>training/colab_train.ipynb</code> (GPU). See <code>training/README.md</code>.</li>
+    <li>Download <code>retinal_unet.pt</code> from Google Drive and place it in <code>models/</code> (or set <code>MODEL_PATH</code>). Do not commit it to Git.</li>
+    <li>Install PyTorch CPU in the app environment: <code>pip install -r requirements-ml.txt</code>.</li>
+    <li>Restart the app. New uploads will then use the U-Net; older heuristic measurements are not compared with U-Net measurements.</li>
+  </ol></section>
+{% endblock %}

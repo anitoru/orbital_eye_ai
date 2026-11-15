@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ person.id }} | ORBITAL EYE AI{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div><div class="eyebrow">CREW / {{ person.id }}</div><h1>{{ person.display_name }}</h1>
+    <p>{{ person.mission }} · {{ person.mission_status }}{% if person.is_demo %} · <span class="pill demo">FICTIONAL PROFILE · SYNTHETIC SCANS</span>{% endif %}</p></div>
+  <a class="button primary" href="{{ url_for('analysis', astronaut=person.id) }}">＋ Add examination</a>
+</section>
+{% if person.notes %}<div class="notice" style="margin:0 0 18px"><b>Notes</b><span>{{ person.notes }}</span></div>{% endif %}
+
+<div class="grid-2">
+  <section class="panel auto"><div class="eyebrow">LONGITUDINAL TREND</div><h3 style="margin:6px 0 10px">Mean ILM–RPE thickness (px)</h3>
+    {% if points | selectattr('thickness') | list %}<div class="chart-box"><canvas id="thicknessChart"></canvas></div>{% else %}<p class="muted">No usable measurements yet.</p>{% endif %}</section>
+  <section class="panel auto"><div class="eyebrow">CHANGE VS. BASELINE</div><h3 style="margin:6px 0 10px">Percentage change (dashed lines = ±{{ alert_threshold }}% demo threshold)</h3>
+    {% if points | selectattr('pct_change', 'ne', none) | list %}<div class="chart-box"><canvas id="changeChart"></canvas></div>{% else %}<p class="muted">Needs a usable baseline and at least one follow-up of the same eye.</p>{% endif %}</section>
+</div>
+
+<div class="grid-2 mt">
+  <section class="panel auto"><div class="eyebrow">BASELINE</div><h3 style="margin:6px 0 10px">Baseline measurements</h3>
+    {% for b in baselines %}<dl class="kv"><dt>DATE</dt><dd><a class="text-link" href="{{ url_for('scan_detail', scan_id=b.id) }}">{{ b.exam_date }}</a> · {{ b.eye or '-' }} · {{ b.seg_method }}</dd><dt>THICKNESS</dt><dd>{{ b.thickness_mean_px }} px (median {{ b.thickness_median_px }})</dd></dl>{% if not loop.last %}<hr style="border:0;border-top:1px solid var(--line)">{% endif %}
+    {% else %}<p class="muted">No usable baseline examination. Upload one with phase "baseline".</p>{% endfor %}</section>
+  <section class="panel auto"><div class="eyebrow">MEDICAL REVIEW</div><h3 style="margin:6px 0 10px">Alerts</h3>
+    {% for al in alerts %}<div class="alert-card"><b>{{ al.category }}</b> — {{ al.exam_date }}<small>{{ al.previous_value }} → {{ al.current_value }} {{ al.unit }} ({{ al.pct_change | signed }}%, threshold ±{{ al.threshold_pct }}%). {{ al.recommendation }}</small></div>
+    {% else %}<p class="muted">No alerts for this astronaut.</p>{% endfor %}</section>
+</div>
+
+<section class="section-head mt"><div><div class="eyebrow">TIMELINE</div><h3>Examination history</h3></div></section>
+{% if scans %}
+<form method="get" action="{{ url_for('compare') }}">
+<div class="table-wrap"><table><thead><tr><th></th><th>DATE</th><th>PHASE</th><th>EYE</th><th>FILE</th><th>QUALITY</th><th>THICKNESS (PX)</th><th>Δ BASELINE</th></tr></thead><tbody>
+{% for p in points %}{% set s = scans[loop.index0] %}<tr>
+  <td><input type="checkbox" name="scan" value="{{ s.id }}" class="compare-box" aria-label="Select for comparison"></td>
+  <td>{{ p.date }}</td><td>{{ p.phase }}</td><td>{{ p.eye }}</td>
+  <td class="file-cell"><a href="{{ url_for('scan_detail', scan_id=s.id) }}">▧ {{ s.filename }}</a></td>
+  <td><span class="pill {{ s.quality_status or 'neutral' }}">{{ (s.quality_status or 'n/a') | upper }}</span></td>
+  <td>{{ p.thickness if p.thickness is not none else '-' }}</td>
+  <td>{% if p.pct_change is not none %}<span class="{{ 'change-up' if p.pct_change > 0 else 'change-down' }}">{{ p.pct_change | signed }}%</span>{% else %}-{% endif %}</td>
+</tr>{% endfor %}
+</tbody></table></div>
+<button class="button primary mt" type="submit" id="compare-btn" disabled>Compare selected (0/2)</button>
+</form>
+{% else %}<div class="empty-state"><h4>No examinations</h4><p>Add a baseline OCT examination for this astronaut.</p></div>{% endif %}
+<div class="notice"><b>Interpretation</b><span>Trends are automated pixel measurements. A change exceeding the demonstration threshold is a prompt for ophthalmological review, not evidence of SANS. Many factors (scan position, image quality, device) affect these values.</span></div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  const points = {{ points | tojson }};
+  const labels = points.map(p => p.date + " · " + p.phase);
+  const eyes = [...new Set(points.map(p => p.eye))];
+  if (document.getElementById("thicknessChart")) {
+    orbitalLineChart("thicknessChart", labels,
+      eyes.map(e => ({label: "Eye " + e, data: points.map(p => p.eye === e ? p.thickness : null)})), "Thickness (px)");
+  }
+  if (document.getElementById("changeChart")) {
+    const t = {{ alert_threshold }};
+    orbitalLineChart("changeChart", labels, [
+      ...eyes.map(e => ({label: "Eye " + e + " % change", data: points.map(p => p.eye === e ? p.pct_change : null)})),
+      {label: "+" + t + "% (demo)", data: points.map(() => t), dashed: true},
+      {label: "-" + t + "% (demo)", data: points.map(() => -t), dashed: true},
+    ], "% vs. baseline");
+  }
+</script>
+{% endblock %}
