@@ -6,7 +6,7 @@ from typing import List
 @dataclass
 class TrainConfig:
     # Folder with the Duke DME .mat files (Subject_01.mat ... Subject_10.mat)
-    data_dir: str = "/content/drive/MyDrive/orbital_eye/datasets/duke_dme"
+    data_dir: str = "/content/drive/MyDrive/orbital_eye/datasets/duke_dme/2015_BOE_Chiu"
     out_dir: str = "/content/drive/MyDrive/orbital_eye/checkpoints"
 
     # Patient-level split (subject numbers). No subject appears in two splits.
