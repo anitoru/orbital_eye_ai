@@ -10,8 +10,9 @@ def upload(client, file, name, **form):
 
 
 def test_pages_load_on_fresh_database(client):
-    for path in ["/", "/analysis", "/history", "/astronauts", "/astronauts/new", "/alerts", "/model", "/nasa"]:
+    for path in ["/", "/analysis", "/history", "/astronauts", "/astronauts/new", "/alerts", "/nasa"]:
         assert client.get(path).status_code == 200, path
+    assert client.get("/model").status_code == 404  # model status page was removed
 
 
 def test_valid_upload_redirects_to_detail(client, synthetic_png):

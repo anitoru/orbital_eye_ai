@@ -401,10 +401,6 @@ def register_routes(app: Flask) -> None:
                                      ORDER BY al.exam_date DESC""")
         return render_template("alerts.html", alerts=rows)
 
-    @app.route("/model")
-    def model():
-        return render_template("model.html", model=inference.model_status(get_cfg().MODEL_PATH))
-
     @app.route("/nasa")
     def nasa():
         return render_template("nasa.html")

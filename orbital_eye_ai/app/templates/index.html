@@ -23,7 +23,7 @@
   <div class="stat-card"><div class="stat-label">ASTRONAUT PROFILES</div><div class="stat-value">{{ stats.astronauts }}</div><div class="stat-note">Fictional / anonymised</div></div>
   <div class="stat-card"><div class="stat-label">EXAMINATIONS</div><div class="stat-value">{{ stats.scans }}</div><div class="stat-note">{{ stats.analysed }} with boundary measurement</div></div>
   <div class="stat-card"><div class="stat-label">REVIEW ALERTS</div><div class="stat-value">{{ stats.alerts }}</div><div class="stat-note">Threshold ±{{ alert_threshold }}% (demo, not clinical)</div></div>
-  <div class="stat-card"><div class="stat-label">AI MODEL STATUS</div><div class="stat-value status-text">{{ model_label | title }}</div><div class="stat-note"><span class="amber-dot"></span>{% if model_state == 'loaded' %}U-Net in use{% else %}Heuristic fallback in use{% endif %}</div></div>
+  <div class="stat-card"><div class="stat-label">ANALYSIS METHOD</div><div class="stat-value status-text">{{ model_label | title }}</div><div class="stat-note"><span class="amber-dot"></span>{% if model_state == 'loaded' %}U-Net in use{% else %}Heuristic fallback in use{% endif %}</div></div>
 </section>
 
 {% if not stats.astronauts and not stats.scans %}
